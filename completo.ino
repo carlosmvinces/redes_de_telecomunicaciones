@@ -5,10 +5,10 @@
 #include <ESP32Servo.h>
 
 // ========== CONFIGURACIÓN WiFi ==========
-const char* ssid = "Martin_Vinces2";
-const char* password = "cvinces1973";
-const char* server_host = "http://192.168.18.203:1880";
-const char* THINGSPEAK_API_KEY = "8CV57HVWT8V850TM";
+const char* ssid = "ssid";
+const char* password = "pswd";
+const char* server_host = "http://IP:1880";
+const char* THINGSPEAK_API_KEY = "writing_api_token";
 const char* THINGSPEAK_URL = "http://api.thingspeak.com/update";
 
 // ========== PINES ==========

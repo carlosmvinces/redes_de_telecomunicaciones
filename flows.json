@@ -1,0 +1,807 @@
+[
+    {
+        "id": "e46741eaf8cc7d06",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "11",
+        "type": "http in",
+        "z": "e46741eaf8cc7d06",
+        "name": "POST /rfid",
+        "url": "/rfid",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 460,
+        "y": 300,
+        "wires": [
+            [
+                "12"
+            ]
+        ]
+    },
+    {
+        "id": "12",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Guardar RFID",
+        "func": "let ahora = new Date().toLocaleString();\nflow.set(\"ultima_rfid\", ahora);\n\nlet peso = flow.get(\"peso\") || 0;\nlet agua_baja = flow.get(\"agua_baja\") || false;\n\n// ⚠️ Umbral de activación automática\nif (peso < 100) {\n    flow.set(\"activar_servo\", true);\n    node.warn(\"💡 Activación automática del servo (peso bajo)\");\n}\n\nif (agua_baja) {\n    flow.set(\"activar_bomba\", true);\n    node.warn(\"💧 Activación automática de bomba (agua baja)\");\n}\n\nmsg.payload = ahora;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 300,
+        "wires": [
+            [
+                "13",
+                "14"
+            ]
+        ]
+    },
+    {
+        "id": "13",
+        "type": "ui_text",
+        "z": "e46741eaf8cc7d06",
+        "group": "9ebbd00490b78f5b",
+        "order": 1,
+        "width": 4,
+        "height": 1,
+        "name": "Último RFID",
+        "label": "Última lectura RFID:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 830,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "14",
+        "type": "http response",
+        "z": "e46741eaf8cc7d06",
+        "name": "Respuesta RFID",
+        "statusCode": "",
+        "headers": {},
+        "x": 840,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "15",
+        "type": "ui_button",
+        "z": "e46741eaf8cc7d06",
+        "name": "Botón comida",
+        "group": "grupo_comida",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "label": "🦴 Dar comida",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 620,
+        "y": 220,
+        "wires": [
+            [
+                "16"
+            ]
+        ]
+    },
+    {
+        "id": "16",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Activar servo",
+        "func": "flow.set(\"activar_servo\", true);\nreturn msg;",
+        "outputs": 1,
+        "x": 830,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "17",
+        "type": "ui_button",
+        "z": "e46741eaf8cc7d06",
+        "name": "Botón agua",
+        "group": "grupo_agua",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "💧 Dar agua",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "topic": "",
+        "topicType": "str",
+        "x": 630,
+        "y": 160,
+        "wires": [
+            [
+                "18"
+            ]
+        ]
+    },
+    {
+        "id": "18",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Activar bomba",
+        "func": "flow.set(\"activar_bomba\", true);\nreturn msg;",
+        "outputs": 1,
+        "x": 840,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "19",
+        "type": "http in",
+        "z": "e46741eaf8cc7d06",
+        "name": "GET /consultar",
+        "url": "/consultar",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 320,
+        "y": 60,
+        "wires": [
+            [
+                "20"
+            ]
+        ]
+    },
+    {
+        "id": "20",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Responder acciones",
+        "func": "let activar_servo = flow.get(\"activar_servo\") || false;\nlet activar_bomba = flow.get(\"activar_bomba\") || false;\n\nflow.set(\"activar_servo\", false);\nflow.set(\"activar_bomba\", false);\n\nmsg.payload = {\n  activar_servo,\n  activar_bomba\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 60,
+        "wires": [
+            [
+                "21"
+            ]
+        ]
+    },
+    {
+        "id": "21",
+        "type": "http response",
+        "z": "e46741eaf8cc7d06",
+        "name": "Respuesta consultar",
+        "statusCode": "",
+        "headers": {},
+        "x": 820,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "0138dabb3ffaa6df",
+        "type": "ui_template",
+        "z": "e46741eaf8cc7d06",
+        "group": "grupo_comida",
+        "name": "Plato Comida",
+        "order": 7,
+        "width": 4,
+        "height": 4,
+        "format": "<div style=\"text-align: center;\">\n<img src=\"/imagenes/comida.png\" style=\"width:100px;\">\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 840,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f5a118833ab9bba8",
+        "type": "ui_template",
+        "z": "e46741eaf8cc7d06",
+        "group": "grupo_agua",
+        "name": "Plato agua",
+        "order": 7,
+        "width": 4,
+        "height": 4,
+        "format": "<div style=\"text-align: center;\">\n<img src=\"/imagenes/agua.png\" style=\"width:100px;\">\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 830,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "peso_in",
+        "type": "http in",
+        "z": "e46741eaf8cc7d06",
+        "name": "POST /peso",
+        "url": "/peso",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 450,
+        "y": 380,
+        "wires": [
+            [
+                "peso_guardar"
+            ]
+        ]
+    },
+    {
+        "id": "peso_guardar",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Guardar peso",
+        "func": "let peso = msg.payload.peso || 0;\nflow.set(\"peso\", peso);\nmsg.payload = peso;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 380,
+        "wires": [
+            [
+                "peso_text",
+                "peso_response"
+            ]
+        ]
+    },
+    {
+        "id": "peso_text",
+        "type": "ui_text",
+        "z": "e46741eaf8cc7d06",
+        "group": "grupo_comida",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "name": "Peso actual",
+        "label": "Peso (g):",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 830,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "peso_response",
+        "type": "http response",
+        "z": "e46741eaf8cc7d06",
+        "name": "Respuesta peso",
+        "statusCode": "",
+        "headers": {},
+        "x": 840,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "peso_inject",
+        "type": "inject",
+        "z": "e46741eaf8cc7d06",
+        "name": "Actualizar gráfica comida",
+        "props": [],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "x": 400,
+        "y": 560,
+        "wires": [
+            [
+                "peso_lectura_actual"
+            ]
+        ]
+    },
+    {
+        "id": "peso_lectura_actual",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Leer peso actual",
+        "func": "let peso = flow.get(\"peso\") || 0;\nmsg.payload = peso;\nreturn msg;",
+        "outputs": 1,
+        "x": 630,
+        "y": 560,
+        "wires": [
+            [
+                "peso_chart"
+            ]
+        ]
+    },
+    {
+        "id": "peso_chart",
+        "type": "ui_chart",
+        "z": "e46741eaf8cc7d06",
+        "name": "Gráfica comida",
+        "group": "grupo_comida",
+        "order": 5,
+        "width": 10,
+        "height": 5,
+        "label": "Comida vs Tiempo",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": "8",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": "",
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#ff9900",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 840,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "agua_in",
+        "type": "http in",
+        "z": "e46741eaf8cc7d06",
+        "name": "POST /agua",
+        "url": "/agua",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 450,
+        "y": 480,
+        "wires": [
+            [
+                "agua_guardar"
+            ]
+        ]
+    },
+    {
+        "id": "agua_guardar",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Guardar agua",
+        "func": "let agua_baja = msg.payload.agua_baja === true;\nflow.set(\"agua_baja\", agua_baja);\nmsg.payload = agua_baja ? \"Bajo\" : \"Normal\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 480,
+        "wires": [
+            [
+                "agua_text",
+                "agua_response"
+            ]
+        ]
+    },
+    {
+        "id": "agua_text",
+        "type": "ui_text",
+        "z": "e46741eaf8cc7d06",
+        "group": "grupo_agua",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "name": "Estado agua",
+        "label": "Nivel agua:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 830,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "agua_response",
+        "type": "http response",
+        "z": "e46741eaf8cc7d06",
+        "name": "Respuesta agua",
+        "statusCode": "",
+        "headers": {},
+        "x": 840,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "agua_inject",
+        "type": "inject",
+        "z": "e46741eaf8cc7d06",
+        "name": "Actualizar gráfica agua",
+        "props": [],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "x": 410,
+        "y": 600,
+        "wires": [
+            [
+                "agua_lectura_actual"
+            ]
+        ]
+    },
+    {
+        "id": "agua_lectura_actual",
+        "type": "function",
+        "z": "e46741eaf8cc7d06",
+        "name": "Leer nivel agua",
+        "func": "let agua_baja = flow.get(\"agua_baja\") === true;\nmsg.payload = agua_baja ? 0 : 1;  // ✅ Invertido\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 600,
+        "wires": [
+            [
+                "agua_chart"
+            ]
+        ]
+    },
+    {
+        "id": "agua_chart",
+        "type": "ui_chart",
+        "z": "e46741eaf8cc7d06",
+        "name": "Gráfica agua",
+        "group": "grupo_agua",
+        "order": 5,
+        "width": 10,
+        "height": 5,
+        "label": "Agua vs Tiempo",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "1",
+        "removeOlder": "4",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": "",
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#00bfff",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 830,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4be1a4aeed24bd2",
+        "type": "remote-access",
+        "z": "e46741eaf8cc7d06",
+        "confignode": "f6a1f4b4dbf97b0a",
+        "name": "",
+        "verbose": 0,
+        "x": 1060,
+        "y": 340,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "7625bf2cd1b67bb4",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 1,
+        "width": 2,
+        "height": 1
+    },
+    {
+        "id": "b65bc90dfcef096d",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 4,
+        "width": 2,
+        "height": 1
+    },
+    {
+        "id": "c28bfe0379117199",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 6,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "723cd1a9debf4b68",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 8,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "da052f9289f2a83e",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 9,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "4bac1ff52c015d84",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 10,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "72e60813070bbf7b",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 11,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "e325449e2e40f337",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 12,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "ff8bf17688561584",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 13,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "33c98f8c1f5619fa",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_comida",
+        "order": 14,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "d8ad9a3f440b9d09",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 1,
+        "width": 2,
+        "height": 1
+    },
+    {
+        "id": "9fdac85bfc765319",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 4,
+        "width": 2,
+        "height": 1
+    },
+    {
+        "id": "cb161276c81141af",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 6,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "06a4d4e83e4ede09",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 8,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "5c970f862189434c",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 9,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "30f11b4f6cd8275d",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 10,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "7e3524a9e7ea4cee",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 11,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "dab773dcd129387a",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 12,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "6dacbfd39b7afb70",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 13,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "8b23c1b36cdda6d0",
+        "type": "ui_spacer",
+        "z": "e46741eaf8cc7d06",
+        "name": "spacer",
+        "group": "grupo_agua",
+        "order": 14,
+        "width": 3,
+        "height": 1
+    },
+    {
+        "id": "9ebbd00490b78f5b",
+        "type": "ui_group",
+        "name": "RFID",
+        "tab": "tab_mascota",
+        "order": 3,
+        "disp": true,
+        "width": "4",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grupo_comida",
+        "type": "ui_group",
+        "name": "Comida",
+        "tab": "tab_mascota",
+        "order": 1,
+        "disp": true,
+        "width": 10
+    },
+    {
+        "id": "grupo_agua",
+        "type": "ui_group",
+        "name": "Agua",
+        "tab": "tab_mascota",
+        "order": 2,
+        "disp": true,
+        "width": 10
+    },
+    {
+        "id": "f6a1f4b4dbf97b0a",
+        "type": "remote-config",
+        "name": "Node-RED UI",
+        "host": "localhost",
+        "protocol": "http",
+        "port": "1880",
+        "baseurl": "/ui",
+        "instancehash": "2tosfzsiuoc1stwkzm2zdaqhpruz13gjvw7zblrgo8cfi281px0qf9lx768vp5ia",
+        "server": "nodered03.remote-red.com",
+        "region": "us"
+    },
+    {
+        "id": "tab_mascota",
+        "type": "ui_tab",
+        "name": "🐶 Mascota IoT",
+        "icon": "dashboard",
+        "order": 1
+    }
+]
